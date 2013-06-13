@@ -1,0 +1,145 @@
+<html><meta charset="UTF-8">    <style type="text/css">
+
+    @font-face {
+    font-family: "fuente";
+    src: url(archivo-narrow/ArchivoNarrow-Regular.otf);
+    }
+    @font-face {
+    font-family: "fuente2";
+    src: url(Comfortaa/Comfortaa_Regular.ttf);
+    }   
+        body{
+            font-family: 'fuente';
+            color:#333;
+        }
+
+        p{
+            font-family: 'fuente2';
+            font-size: 16.5px;
+        }
+
+        h1,h2,h3,h4{
+            color:#DF4931;
+        }
+
+        h1{
+            width: 80%;
+            margin: auto;
+            border-bottom: 1px solid #DF4931;
+            text-align: center;
+            font-size: 82px;
+            text-transform: uppercase;
+            margin-bottom: 55px;
+        }
+
+    </style><body><h1>Implementación</h1>
+<p>Una vez que ya tenemos el análisis y el diseño del proyecto, podemos dar el paso siguiente: la implementación de las tecnologías y metodologías descritas previamente.</p>
+<h2>Implementación del modelo de datos</h2>
+<p>Una de las piezas clave de esta aplicación es la estructura de la base de datos que se encargará de guardar todos los datos necesarios para el correcto funcionamiento de la aplicación. Recordemos que el objetivo de <strong>OpenBlog</strong> es una plataforma de creación de blogs, con lo cual necesitaremos guardar todos los datos útiles de este tipo de aplicaciones.
+Todas los datos se guardarán en una base de datos <em>MySQL</em> como ya hemos hablado anteriormente.</p>
+<p>Todas estas tablas y datos se crearán durante la instalación de OpenBlog, el usuario deberá dar los datos necesarios para poder crear la aplicación y que esta sea funcional. Para ello contará con una sencilla interfaz que facilitará la recogida de datos y verificará la validez de estos.</p>
+<h3>Tablas necesarias</h3>
+<ul>
+<li>Usuario:
+En este tabla guardaremos toda la información relacionada con los usuarios, como su nombre, contraseña o tipo de usuario.</li>
+<li>Rol:
+En rol guardaremos el tipo de usuario que puede ser (usuario común o administrador) para luego dar ciertos privilegios según que tipo de usuario.</li>
+<li>Categoria:
+Categoría comprenderá todos los tipos de categorías de las entradas escritas.</li>
+<li>Post:
+Aquí guardaremos toda la información necesaria de las entradas, como puede ser la fecha, quien la ha escrito o el contenido de la misma.</li>
+<li>Comentario:
+En comentario guardaremos las respuestas a los posts dados.</li>
+</ul>
+<h3>Relación entre tablas</h3>
+<p><img alt="img" src="images/estructuraDeTablas.jpg" /></p>
+<p>Como se puede ver en la imagen, la estructura en la que se basa las tablas necesarias para el correcto funcionamiento de la aplicación es sencilla.</p>
+<p><em>Explicación detallada:</em></p>
+<p>Un post esta relacionado con una categoría, pero una categoría puede estar relacionada con muchos post como es lógico. A su vez un post está escrito por un usuario, pero como ocurre con las categorías un usuario puede tener muchos posts.</p>
+<p>Un comentario está relacionado a solo un post, pero un post puede tener varios comentarios.</p>
+<p>Por último un usuario solo puede tener un rol (o administrador o usuario normal) y lógicamente varios usuarios pueden pertenecer al mismo rol.</p>
+<h2>Carga de datos.</h2>
+<h3>Obtención de datos estáticamente.</h3>
+<p>Utilizamos el lenguaje PhP y sus funcionalidades <em>(en nuestro caso la clase PDO)</em> para cargar los registros de la base de datos cuando sea necesario, por ejemplo para realizar consultas para mostrar las entradas o para acceder con usuario determinado.</p>
+<p>Creamos tantos modelos de clases como tablas hay en la base de datos, que a la vez estos poseerán tantos atributos como columnas tengan sus respectivas tablas. La finalidad de ello es tener un modelo que nos permita con mucha más facilidad y usabilidad la interacción entre la base de datos y la aplicación.</p>
+<p><em>Ejemplo de clase modelo ROL.:</em></p>
+<pre><code>class Rol {
+    private $id;
+    private $nombre;
+    private $descripcion;
+
+    public function getId(){
+        return $this-&gt;id;
+    }
+
+    public function getNombre(){
+        return $this-&gt;nombre;
+    }
+
+    public function getDescripcion(){
+        return $this-&gt;descripcion;
+    }
+
+    public function setId($id){
+        $this-&gt;id = $id;
+    }
+
+    public function setNombre($nombre){
+        $this-&gt;nombre = $nombre;
+    }
+
+    public function setDescripcion($descripcion){
+        $this-&gt;descripcion = $descripcion;
+    }
+}
+</code></pre>
+<p>Para ello existe una clase llamada <em>ManejadorBD</em>, que será la encargada de realizar las consultas necesarias a la base de datos y devolvernos los resultados deseados para posteriormente poder utilizarlos según conveniencia, podríamos decir que dicha clase actúa de <em>controlador</em> de la aplicación.</p>
+<h3>Obtención de datos dinámicamente.</h3>
+<p>Entendemos por obtención de datos dinámicamente la realización de consultar la base de datos de forma que no se tenga que recargar la página mejorando la calidad de la aplicación y la usabilidad de la misma.</p>
+<p>Para ello utilizaremos <em>PhP</em> y <em>AJAX</em> (JQuery). Mandaremos la información por javascripts a ficheros PHP que la procesarán y actuarán de controladores para facilitarnos la respuesta (con un objeto <em>JSON</em>) todo ello de manera dinámica y trasparente al usuario.</p>
+<h3>Datos personalizables.</h3>
+<p>Uno de los puntos fuertes de OpenBlog es su capacidad de personalización de ciertos aspectos de la aplicación.</p>
+<p>Todos estos cambios deben ser perdurables y modificables. Para ello empleamos un archivo de configuración <em>JSON</em> con los diferentes campos personalizables, que cambiarán dinámicamente cuando un administrador los modifique.</p>
+<p><em>Ejemplo del archivo de configuración JSON:</em></p>
+<pre><code>{
+    "host": "127.0.0.1",
+    "user": "root",
+    "pass": "root",
+    "nombreBd": "openblog",
+    "raiz": "http:\/\/localhost\/OpenBlog\/",
+    "tituloBlog": "OpenBlog",
+    "descripcionBlog": "Descripci\u00f3n",
+    "rutaCss": "resources\/css\/estilos.css",
+    "logo": "resources\/betaLogo01.png",
+    "numPost": "5"
+}
+</code></pre>
+<h2>Implementación de la interfaz.</h2>
+<h3>Datos generales de la interfaz.</h3>
+<p>Como se ha dicho en puntos anteriores, <strong>OpenBlog</strong> se centra en la compatibilidad de todos los sistemas operativos y plataformas, por ello la interfaz gráfica es responsiva, es decir, se adapta al tamaño del sistema con el que vemos el Blog (por ejemplo un Movil), para ello utilizamos Bootstrap como se ha explicado previamente.</p>
+<h3>Interfaz de usuario.</h3>
+<p>Podemos decir que la interfaz de usuario es la parte central de la aplicación, donde el usuario podrá ver todas las entradas, tendrá acceso a las categorías así como a los comentarios o al sistema de registro.</p>
+<p>Para ello utilizaremos <em>PHP</em> y plantillas dinámicas <em>HTML</em> para su implementación que se aplicarán según las consultas a la base de datos realizadas por los controladores a través de sus modelos.</p>
+<p><em>Ejemplo de código para ver las entradas de la aplicación:</em></p>
+<pre><code>&lt;div class="span9 contenido"&gt;
+    &lt;?php
+        $posts = $mbd-&gt;getPostPagina($pagina);
+        foreach ($posts as $post){
+            include "src/templates/plantillaPost.php";
+        }
+    ?&gt;
+&lt;/div&gt;
+</code></pre>
+<p><em>Explicación breve:</em></p>
+<p>La etiqueta <em><div></em> con clase span9 contenido tendrá el contenedor de todos los posts. Por php hacemos una consulta al ManejadorBD (llamado previamente y ahora referenciado como $mbd) para obtener todos las entradas de una página determinada.
+Con un foreach recorremos todos los objetos (modelos de post) que nos ha devuelto en $posts que según sus datos (extraidos de la base de datos) se cargarán en la plantillaPost y se mostrarán.</p>
+<h3>Interfaz del administrador</h3>
+<p>La implementación de la interfaz del administrador se basa en un menú lateral con todas las posibilidades de administración y personalización que carga por medio de AJAX (para mejorar el aspecto visual y accesibilidad) una página con los datos seleccionados en el menú.
+Esta interfaz como es obvio solo puede ser accedida si eres un usuario con rol de administrador y tiene como objetivo poder escoger distintos parámetros según conveniencia del usuario de una manera sencilla e intuitiva.</p>
+<h3>Interfaz del instalador</h3>
+<p>La intefaz del instalador es una sencilla implementación de 6 pasos realizada en su mayoría en JavaScript para mejorar la rápidez y visuabilidad del usuario.
+Está interfaz tiene como objetivo facilitar los datos iniciales con el que partirá la aplicación y hacer que sea operativa.</p>
+<h3>Launch page</h3>
+<p>Aunque no forme 100% parte de la aplicación OpenBlog, si lo es del proyecto.
+La launch page no es más que una página web de presentación cuya finalidad será una puerta de enlace entre el proyecto (el cual hay que descargar) y el usuario, además se usará para tutoriales y como página de muestra para captar a los usuarios.</p>
+<p>Podemos decir que la Launch Page será la parte de marketing de la aplicación <strong>OpenBlog</strong></p></body></html>

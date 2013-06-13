@@ -1,0 +1,5 @@
+wkhtmltopdf/*
+images
+Gemfile
+Gemfile.lock
+Guardfile
